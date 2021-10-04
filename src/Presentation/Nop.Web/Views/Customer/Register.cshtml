@@ -6,14 +6,18 @@
     Html.AddTitleParts(T("PageTitle.Register").Text);
     //page class
     Html.AppendPageCssClassParts("html-registration-page");
+    
+    Html.AddScriptParts(ResourceLocation.Footer, "~/lib_npm/bootstrap/js/bootstrap.bundle.min.js");
+    Html.AddCssFileParts(ResourceLocation.Footer, "~/lib_npm/bootstrap/css/bootstrap.min.css");
 }
+
 
 <div class="page registration-page">
     <div class="page-title">
         <h1>@T("Account.Register")</h1>
     </div>
     <div class="page-body">
-        <form asp-route="Register" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off">
+        <form id="register-form" asp-route="Register" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off">
             <div asp-validation-summary="ModelOnly" class="message-error"></div>
             <div class="fieldset">
                 <div class="title">
@@ -424,9 +428,99 @@
                 </div>
             }
 
+        @if (Model.PhoneValidationRequired)
+        {
+            <div class="buttons">
+                <button type="button" id="register-button-wrapper" class="button-1 register-next-step-button">@T("Account.Register.Button")</button>
+                <button type="submit" name="register-button" id="register-button" style="display:none;"></button>
+            </div>
+            
+            <div id="phone-validation-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="phone-validation-window-title" data-backdrop="false">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="phone-validation-window-title">@T("Account.Register.Modal.PhoneValidation")</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <input type="hidden" asp-for="PhoneValidationRequestId" id="phone-validation-request-id"/>
+                        <div class="form-horizontal">
+                            <div class="modal-body">
+                                <div class="fieldset">
+                                    <div class="form-fields">
+                                        <div class="inputs phone-validation">
+                                            <label asp-for="PhoneValidationCode" asp-postfix=":"></label>
+                                            <input asp-for="PhoneValidationCode"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="send-validation-request-button" type="button" class="btn btn-primary">
+                                    @T("Admin.Common.Confirm")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script asp-location="Footer">
+            $(document).ready(function() {
+                $('#register-button-wrapper').on('click', function() {
+                    if($('#register-form').valid()) {
+                        if(!$('PhoneValidationRequestId').val()) {
+                            const postData = { 
+                                phone : $('#Phone').val()
+                            };
+                            
+                            addAntiForgeryToken(postData);
+                            
+                            $.ajax({
+                                  cache: false,
+                                  type: "POST",
+                                  url: '@Url.Action("SendPhoneValidationCode", "Customer")',
+                                  data: postData,
+                                  dataType: "json",
+                                  success: function(data) {
+                                      $('#phone-validation-request-id').val(data['Id']);
+                                      
+                                      $('#phone-validation-window').modal('show');
+                                  },
+                                  error: function(e) {
+                                      alert(e.responseText);
+                                  }
+                            });
+                        } else {
+                            $('#phone-validation-window').modal('show');
+                        }
+                    }
+                });
+                
+                $('#send-validation-request-button').on('click', function() { 
+                    if ($('#PhoneValidationCode').val()) {
+                        $('#phone-validation-window').modal('hide');
+                        $('#register-button').click();
+                    } else {
+                        alert('Phone confirmation code is required!');
+                    }
+                });
+                
+                $('#Phone').on('change', function () {
+                    if ($('#phone-validation-request-id').val()) {
+                        $(this).val('');
+                    }
+                });
+            });
+            </script>
+        }
+        else
+        {
             <div class="buttons">
                 <button type="submit" name="register-button" id="register-button" class="button-1 register-next-step-button">@T("Account.Register.Button")</button>
             </div>
+        }
         </form>
         <div class="external-authentication">
             @await Component.InvokeAsync("ExternalMethods", "ExternalAuthentication")

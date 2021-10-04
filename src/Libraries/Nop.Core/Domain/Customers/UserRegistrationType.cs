@@ -23,6 +23,11 @@ namespace Nop.Core.Domain.Customers
         /// <summary>
         /// Registration is disabled
         /// </summary>
-        Disabled = 4
+        Disabled = 4,
+        
+        /// <summary>
+        /// Phone validation is required after registration
+        /// </summary>
+        PhoneValidation = 5
     }
 }

@@ -19395,4 +19395,25 @@
   <LocaleResource Name="Wishlist.YourWishlistURL">
     <Value>Your wishlist URL for sharing</Value>
   </LocaleResource>
+    <LocaleResource Name="Account.Register.Modal.PhoneValidation">
+        <Value>Phone number validation</Value>
+    </LocaleResource>
+    <LocaleResource Name="Account.Fields.PhoneValidationCode">
+        <Value>Code</Value>
+    </LocaleResource>
+    <LocaleResource Name="Account.Fields.PhoneValidationCode.Empty">
+        <Value>Phone confirmation code is empty!</Value>
+    </LocaleResource>
+    <LocaleResource Name="Account.Fields.Phone.NotValid">
+        <Value>Phone number is not valid!</Value>
+    </LocaleResource>
+    <LocaleResource Name="Account.SendPhoneValidationCode.Sent">
+        <Value>Phone validation code is sent!</Value>
+    </LocaleResource>
+    <LocaleResource Name="Account.PhoneValidation.Error">
+        <Value>An error occured while validating the phone number</Value>
+    </LocaleResource>
+    <LocaleResource Name="Account.Register.PhoneValidation.WrongCode">
+        <Value>You entered the wrong code</Value>
+    </LocaleResource>
 </Language>

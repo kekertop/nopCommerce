@@ -416,6 +416,7 @@ namespace Nop.Web.Factories
             model.StateProvinceRequired = _customerSettings.StateProvinceRequired;
             model.PhoneEnabled = _customerSettings.PhoneEnabled;
             model.PhoneRequired = _customerSettings.PhoneRequired;
+            model.PhoneValidationRequired = _customerSettings.UserRegistrationType == UserRegistrationType.PhoneValidation;
             model.FaxEnabled = _customerSettings.FaxEnabled;
             model.FaxRequired = _customerSettings.FaxRequired;
             model.NewsletterEnabled = _customerSettings.NewsletterEnabled;
@@ -545,7 +546,7 @@ namespace Nop.Web.Factories
             var resultText = (UserRegistrationType)resultId switch
             {
                 UserRegistrationType.Disabled => await _localizationService.GetResourceAsync("Account.Register.Result.Disabled"),
-                UserRegistrationType.Standard => await _localizationService.GetResourceAsync("Account.Register.Result.Standard"),
+                UserRegistrationType.Standard or UserRegistrationType.PhoneValidation => await _localizationService.GetResourceAsync("Account.Register.Result.Standard"),
                 UserRegistrationType.AdminApproval => await _localizationService.GetResourceAsync("Account.Register.Result.AdminApproval"),
                 UserRegistrationType.EmailValidation => await _localizationService.GetResourceAsync("Account.Register.Result.EmailValidation"),
                 _ => null

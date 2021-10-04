@@ -138,4 +138,25 @@
   <LocaleResource Name="Tooltip2">
     <Value>Для того, что успешно установить nopCommerce, вам необходимо знать строку подключения к вашей базе данных. Если у вас нет этой информации, то вы можете узнать ее у вашего хостинг-провайдера. Если же вы устанавливаете nopCommerce на локальный компьютер, то вы можете узнать её у вашего системного администратора.</Value>
   </LocaleResource>
+  <LocaleResource Name="Account.Register.Modal.PhoneValidation">
+      <Value>Подтверждение номера телефона</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.PhoneValidationCode">
+      <Value>Код</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.PhoneConfirmationCode.Empty">
+      <Value>Код подтверждения телефона пуст</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Fields.Phone.NotValid">
+      <Value>Указан неверный номер телефона</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.SendPhoneValidationCode.Sent">
+      <Value>Код подтверждения отправлен на указанный номер</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.PhoneValidation.Error">
+      <Value>Произошла ошибка при подтверждении телефона</Value>
+  </LocaleResource>
+  <LocaleResource Name="Account.Register.PhoneValidation.WrongCode">
+      <Value>Вы ввели неверный код</Value>
+  </LocaleResource>
 </Language>

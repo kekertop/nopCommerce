@@ -297,8 +297,8 @@ label, label + * {
   position: relative;
   margin: 0 0 15px;
   text-align: center;
-  white-space: nowrap; /*fix for 'required' elements*/
-  font-size: 0;
+  /*white-space: nowrap; !*fix for 'required' elements*!*/
+  /*font-size: 0;*/
 }
 
 .inputs:after {
@@ -3508,6 +3508,21 @@ label, label + * {
 #check-availability-button:hover,
 #check-availability-button:focus {
   background-color: #999;
+}
+
+.inputs.phone-validation {
+  text-align: center;
+}
+
+.inputs.phone-validation > * {
+  display: inline-block;
+  line-height: 32px;
+}
+
+.inputs.phone-validation label {
+  width: auto;
+  margin-left: 10px;
+  margin-bottom: 0;
 }
 
 .inputs.accept-consent {

@@ -77,6 +77,12 @@ namespace Nop.Web.Models.Customer
             return dateOfBirth;
         }
 
+                
+        public bool PhoneValidationRequired { get; set; }
+        [NopResourceDisplayName("Account.Fields.PhoneValidationCode")]
+        public string PhoneValidationCode { get; set; }
+        public string PhoneValidationRequestId { get; set; }
+        
         public bool CompanyEnabled { get; set; }
         public bool CompanyRequired { get; set; }
         [NopResourceDisplayName("Account.Fields.Company")]

@@ -127,6 +127,11 @@ namespace Nop.Web.Validators.Customer
             if (customerSettings.PhoneEnabled)
             {
                 RuleFor(x => x.Phone).IsPhoneNumber(customerSettings).WithMessageAwait(localizationService.GetResourceAsync("Account.Fields.Phone.NotValid"));
+                
+                if (customerSettings.UserRegistrationType == UserRegistrationType.PhoneValidation)
+                {
+                    RuleFor(x => x.PhoneValidationCode).NotEmpty().WithMessageAwait(localizationService.GetResourceAsync("Account.Fields.PhoneValidationCode.Required"));
+                }
             }
             if (customerSettings.FaxRequired && customerSettings.FaxEnabled)
             {

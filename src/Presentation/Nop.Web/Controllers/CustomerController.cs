@@ -95,6 +95,7 @@ namespace Nop.Web.Controllers
         private readonly MultiFactorAuthenticationSettings _multiFactorAuthenticationSettings;
         private readonly StoreInformationSettings _storeInformationSettings;
         private readonly TaxSettings _taxSettings;
+        private readonly IPhoneValidationService _phoneValidationService;
 
         #endregion
 
@@ -143,7 +144,8 @@ namespace Nop.Web.Controllers
             MediaSettings mediaSettings,
             MultiFactorAuthenticationSettings multiFactorAuthenticationSettings,
             StoreInformationSettings storeInformationSettings,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings, 
+            IPhoneValidationService phoneValidationService)
         {
             _addressSettings = addressSettings;
             _captchaSettings = captchaSettings;
@@ -189,6 +191,7 @@ namespace Nop.Web.Controllers
             _multiFactorAuthenticationSettings = multiFactorAuthenticationSettings;
             _storeInformationSettings = storeInformationSettings;
             _taxSettings = taxSettings;
+            _phoneValidationService = phoneValidationService;
         }
 
         #endregion
@@ -796,7 +799,33 @@ namespace Nop.Web.Controllers
             {
                 ModelState.AddModelError("", await _localizationService.GetResourceAsync("Common.WrongCaptchaMessage"));
             }
+            
+            //validate phone
+            if (_customerSettings.UserRegistrationType == UserRegistrationType.PhoneValidation)
+            {
+                if (string.IsNullOrEmpty(model.PhoneValidationRequestId))
+                {
+                    ModelState.AddModelError("", await _localizationService.GetResourceAsync("Account.Register.PhoneValidation.Error"));
+                }
 
+                try
+                {
+                    var codeValidationResponse =
+                        await _phoneValidationService.SendCodeVerificationRequestAsync(model.PhoneValidationRequestId,
+                            model.PhoneValidationCode);
+
+                    if (!codeValidationResponse.Validated)
+                    {
+                        ModelState.AddModelError("",
+                            await _localizationService.GetResourceAsync("Account.Register.PhoneValidation.WrongCode"));
+                    }
+                }
+                catch (NopException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
+            
             //GDPR
             if (_gdprSettings.GdprEnabled)
             {
@@ -811,7 +840,7 @@ namespace Nop.Web.Controllers
                 var customerUserName = model.Username?.Trim();
                 var customerEmail = model.Email?.Trim();
 
-                var isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
+                var isApproved = _customerSettings.UserRegistrationType is UserRegistrationType.Standard or UserRegistrationType.PhoneValidation;
                 var registrationRequest = new CustomerRegistrationRequest(customer,
                     customerEmail,
                     _customerSettings.UsernamesEnabled ? customerUserName : customerEmail,
@@ -1017,7 +1046,8 @@ namespace Nop.Web.Controllers
 
                         case UserRegistrationType.AdminApproval:
                             return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.AdminApproval, returnUrl });
-
+                        
+                        case UserRegistrationType.PhoneValidation:
                         case UserRegistrationType.Standard:
                             //send customer welcome message
                             await _workflowMessageService.SendCustomerWelcomeMessageAsync(customer, (await _workContext.GetWorkingLanguageAsync()).Id);
@@ -1138,6 +1168,32 @@ namespace Nop.Web.Controllers
 
             model.Result = await _localizationService.GetResourceAsync("Account.AccountActivation.Activated");
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateCaptcha]
+        [ValidateHoneypot]
+        //available even when navigation is not allowed
+        [CheckAccessPublicStore(true)]
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task<IActionResult> SendPhoneValidationCode(string phone)
+        {
+            var statusText = await _localizationService.GetResourceAsync("Account.Fields.Phone.NotValid");
+
+            if (!PhoneNumberPropertyValidator.IsValid(phone, _customerSettings))
+                return BadRequest(statusText);
+
+            try
+            {
+                var requestResult = await _phoneValidationService.SendValidationRequestAsync(phone);
+                statusText = await _localizationService.GetResourceAsync("Account.SendPhoneValidationCode.Sent");
+
+                return Json(new {requestResult.Id, Text = statusText});
+            }
+            catch (NopException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         #endregion
